@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+//================================================================
+// Movie model
+model Movie {
+  id          Int        @id @default(autoincrement())
+  title       String
+  year        String
+  imdbID      String     @unique
+  type        String
+  poster      String
+  description String
+  favorites   Favorite[] // One-to-many relationship with Favorite
+}
+//================================================================
+// User model
+model User {
+  id          Int        @id @default(autoincrement())
+  username    String     @unique
+  password    String
+  
+  favorites   Favorite[] // One-to-many relationship with Favorite
+}
+//================================================================
+// Favorite model (junction table between User and Movie)
+model Favorite {
+  userId   Int
+  imdbID   String
+  user     User   @relation(fields: [userId], references: [id])
+  movie    Movie  @relation(fields: [imdbID], references: [imdbID])
+
+  @@id([userId, imdbID])  // Composite primary key for userId and imdbID
+  @@index([userId])        // Index for faster lookups by userId
+  @@index([imdbID])        // Index for faster lookups by imdbID
+}
